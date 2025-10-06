@@ -1,0 +1,2 @@
+from utils import convert_latest_json_to_gsheet
+convert_latest_json_to_gsheet()
