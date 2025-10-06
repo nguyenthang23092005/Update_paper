@@ -355,13 +355,12 @@ def check_relevance_with_genai(abstract, keywords):
 # =========================================
 # Hàm lọc bài báo không có abstract hoặc không liên quan
 # =========================================
-def filter_irrelevant_papers(results, threshold=0.7, keywords=["Non-Destructive Testing"]):
+def filter_irrelevant_papers(results, keywords=["Non-Destructive Testing"]):
     """
     Lọc các bài báo không có abstract hoặc không liên quan đến nghiên cứu.
 
     Parameters:
         results (list): Danh sách bài báo, mỗi bài báo là dict với 'abstract' và 'title'.
-        threshold (float): Ngưỡng liên quan tối thiểu (để mở rộng, prompt tự quyết định).
         keywords (list): Danh sách từ khóa liên quan đến chủ đề nghiên cứu.
 
     Returns:
@@ -378,7 +377,7 @@ def filter_irrelevant_papers(results, threshold=0.7, keywords=["Non-Destructive 
             continue
 
         print(f"Checking relevance for: {title}")
-        is_relevant = check_relevance_with_genai(abstract, keywords, threshold)
+        is_relevant = check_relevance_with_genai(abstract, keywords)
 
         if is_relevant:
             filtered_papers.append(paper)
