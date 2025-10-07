@@ -34,6 +34,13 @@ jobs:
           echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" > sa_key.json
           echo "✅ Created sa_key.json"
         shell: bash
+
+      - name: Debug credentials file
+        run: |
+          echo "🔍 Checking credential file content..."
+          echo "----------------------------------------"
+          cat sa_key.json || echo "❌ File not found!"
+          echo "----------------------------------------"
         
       - name: Run main script
         env:
