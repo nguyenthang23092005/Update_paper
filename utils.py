@@ -14,7 +14,18 @@ RESULTS_DIR = "results"
 DATABASE_DIR = "database"
 DATABASE_FILE = "papers_db.json"
 SPREADSHEET_ID = "1ZLTODE7spM_M4mPPy3qeCoR51I_ectk0D5cTiWXWT_k"
-CREDENTIALS_FILE = "eternal-dynamo-474316-f6-382e31e4ae72.json"
+creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+
+if creds_path and os.path.exists(creds_path):
+    # Dùng key từ biến môi trường (GitHub Actions)
+    CREDENTIALS_FILE = creds_path
+else:
+    # Dùng key local (máy của bạn)
+    CREDENTIALS_FILE = r"D:\GitHub\Key_gg_sheet\eternal-dynamo-474316-f6-382e31e4ae72.json"
+
+scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+creds = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=scopes)
+
 
 def normalize_key(paper):
     """
@@ -131,10 +142,17 @@ def load_database(db_dir=DATABASE_DIR, db_file=DATABASE_FILE):
     db_path = os.path.join(db_dir, db_file)
 
     if os.path.exists(db_path):
-        with open(db_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+        try:
+            if os.path.getsize(db_path) == 0:
+                return []
+            with open(db_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            print(f"⚠️ File JSON bị lỗi hoặc rỗng: {db_path}, tạo database mới")
+            return []
     else:
         return []
+
 
 
 def save_database(data, db_dir=DATABASE_DIR, db_file=DATABASE_FILE):
@@ -247,10 +265,6 @@ def filter_duplicates(new_results, results_dir=RESULTS_DIR, db_dir=DATABASE_DIR,
 
 def tidy_up_sheet_auto(spreadsheet_id, sheet_name=None):
     # 1. Kết nối Google Sheets API
-    scopes = ["https://www.googleapis.com/auth/spreadsheets"]
-    creds = Credentials.from_service_account_file(
-        "eternal-dynamo-474316-f6-382e31e4ae72.json", scopes=scopes
-    )
     service = build("sheets", "v4", credentials=creds)
 
     # 2. Lấy metadata sheet
@@ -375,9 +389,6 @@ def tidy_up_sheet_auto(spreadsheet_id, sheet_name=None):
 
 def append_json_to_gsheet(df, date_str):
     """Thêm hoặc ghi đè dữ liệu JSON vào Google Sheet, không đè sang ngày khác"""
-    # Xác thực
-    scopes = ["https://www.googleapis.com/auth/spreadsheets"]
-    creds = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=scopes)
     client = gspread.authorize(creds)
     sheet = client.open_by_key(SPREADSHEET_ID).sheet1
 
