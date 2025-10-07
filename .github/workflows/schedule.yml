@@ -31,7 +31,7 @@ jobs:
 
       - name: Setup Google credentials
         run: |
-          printf '%s' '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > sa_key.json
+          echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_BASE64 }}" | base64 --decode > sa_key.json
           echo "✅ Created sa_key.json"
         shell: bash
 
