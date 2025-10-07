@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
-import shutil
+
 
 def get_target_date(days_ago=1):
     """Lấy ngày YYYY-MM-DD của hôm qua (hoặc n ngày trước)"""
@@ -25,14 +25,13 @@ class ScholarFinder:
         options.add_argument("--headless=new")
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
+        options.add_argument("--disable-gpu")
+        options.add_argument("--window-size=1920,1080")
         options.add_argument('--disable-blink-features=AutomationControlled')
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
         options.add_argument("--user-data-dir=/tmp/chrome-profile")
-        chrome_path = shutil.which("google-chrome") or shutil.which("chrome") or "/usr/bin/chromium-browser"
-        if not chrome_path:
-            raise FileNotFoundError("❌ Không tìm thấy Chrome binary trong hệ thống runner.")
-        options.binary_location = chrome_path
+        options.binary_location = "/usr/bin/google-chrome"
 
         self.driver = webdriver.Chrome(options=options)
         # self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
