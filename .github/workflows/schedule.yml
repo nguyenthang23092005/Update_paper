@@ -3,8 +3,10 @@ name: Scheduled Paper Collector
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 17 * * *"   # 0h sáng VN (17h UTC hôm trước)
-    - cron: "0 5 * * *"    # 12h trưa VN (5h UTC)
+    - cron: "0 17 * * *"  # 0h sáng VN
+    - cron: "0 5 * * *"   # 12h trưa VN
+    - cron: "0 23 * * *"  # 6h sáng VN
+    - cron: "0 11 * * *"  # 18h tối VN
 
 jobs:
   run-script:
