@@ -18,7 +18,6 @@ jobs:
         with:
           persist-credentials: false
 
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -29,20 +28,23 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Install Chrome
+      - name: Install Chromium and ChromeDriver
         run: |
           sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
+          sudo apt-get install -y chromium-browser chromium-chromedriver
+          # Bỏ qua nếu file đã tồn tại
+          sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver || true
 
-      - name: Install ChromeDriver
-        run: |
-          sudo apt-get install -y chromium-chromedriver
-          sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
+          # Kiểm tra phiên bản
+          chromium-browser --version || echo "chromium not found"
+          chromedriver --version || echo "chromedriver not found"
 
       - name: Run main script
         env:
           GOOGLE_APPLICATION_CREDENTIALS: sa_key.json
-        run: python run.py
+        run: |
+          echo "Running main Python script..."
+          python run.py || (echo "❌ Script failed"; exit 1)
 
       - name: Commit and push results
         env:
@@ -50,10 +52,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add results/ database/
+
+          git add results/ database/ || true
           git commit -m "new paper $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
-          
+
           git fetch origin main
           git pull --rebase origin main
-          
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
+
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main || echo "No push needed"
