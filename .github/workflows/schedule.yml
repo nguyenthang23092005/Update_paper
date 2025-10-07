@@ -36,13 +36,6 @@ jobs:
           echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_BASE64 }}" | base64 --decode > sa_key.json
           echo "✅ Created sa_key.json"
         shell: bash
-
-      - name: Debug credentials file
-        run: |
-          echo "🔍 Checking credential file content..."
-          echo "----------------------------------------"
-          cat sa_key.json || echo "❌ File not found!"
-          echo "----------------------------------------"
         
       - name: Run main script
         env:
