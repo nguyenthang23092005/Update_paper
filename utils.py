@@ -16,16 +16,18 @@ DATABASE_FILE = "papers_db.json"
 SPREADSHEET_ID = "1ZLTODE7spM_M4mPPy3qeCoR51I_ectk0D5cTiWXWT_k"
 creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 
-if creds_path and os.path.exists(creds_path):
-    # Dùng key từ biến môi trường (GitHub Actions)
-    CREDENTIALS_FILE = creds_path
-else:
-    # Dùng key local (máy của bạn)
-    CREDENTIALS_FILE = r"D:\GitHub\Key_gg_sheet\eternal-dynamo-474316-f6-382e31e4ae72.json"
 
-scopes = ["https://www.googleapis.com/auth/spreadsheets"]
-creds = Credentials.from_service_account_file(CREDENTIALS_FILE, scopes=scopes)
+def get_creds():
+    creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+    if creds_path and os.path.exists(creds_path):
+        file = creds_path
+    else:
+        file = r"D:\GitHub\Key_gg_sheet\eternal-dynamo-474316-f6-382e31e4ae72.json"
+        if not os.path.exists(file):
+            raise FileNotFoundError(f"❌ Không tìm thấy credential: {file}")
 
+    scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+    return Credentials.from_service_account_file(file, scopes=scopes)
 
 def normalize_key(paper):
     """
@@ -265,6 +267,7 @@ def filter_duplicates(new_results, results_dir=RESULTS_DIR, db_dir=DATABASE_DIR,
 
 def tidy_up_sheet_auto(spreadsheet_id, sheet_name=None):
     # 1. Kết nối Google Sheets API
+    creds = get_creds()
     service = build("sheets", "v4", credentials=creds)
 
     # 2. Lấy metadata sheet
@@ -389,6 +392,7 @@ def tidy_up_sheet_auto(spreadsheet_id, sheet_name=None):
 
 def append_json_to_gsheet(df, date_str):
     """Thêm hoặc ghi đè dữ liệu JSON vào Google Sheet, không đè sang ngày khác"""
+    creds = get_creds()
     client = gspread.authorize(creds)
     sheet = client.open_by_key(SPREADSHEET_ID).sheet1
 
