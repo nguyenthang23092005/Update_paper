@@ -18,16 +18,19 @@ creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 
 
 def get_creds():
+    scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+
+    # Dành cho GitHub Actions
     creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
     if creds_path and os.path.exists(creds_path):
-        file = creds_path
-    else:
-        file = r"D:\GitHub\Key_gg_sheet\eternal-dynamo-474316-f6-382e31e4ae72.json"
-        if not os.path.exists(file):
-            raise FileNotFoundError(f"❌ Không tìm thấy credential: {file}")
+        return Credentials.from_service_account_file(creds_path, scopes=scopes)
 
-    scopes = ["https://www.googleapis.com/auth/spreadsheets"]
-    return Credentials.from_service_account_file(file, scopes=scopes)
+    # Dành cho chạy local
+    local_path = r"D:\GitHub\Key_gg_sheet\eternal-dynamo-474316-f6-382e31e4ae72.json"
+    if os.path.exists(local_path):
+        return Credentials.from_service_account_file(local_path, scopes=scopes)
+
+    raise FileNotFoundError("❌ Không tìm thấy file Google credential nào hợp lệ.")
 
 def normalize_key(paper):
     """
