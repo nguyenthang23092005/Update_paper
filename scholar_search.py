@@ -20,7 +20,7 @@ class ScholarFinder:
         self.driver = None
 
     def setup_browser(self):
-        """Setup Chrome/Chromium cho môi trường GitHub Actions (Ubuntu headless)"""
+        """Setup Chrome/Chromium cho môi trường headless trên GitHub Actions"""
         options = Options()
         options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
@@ -30,11 +30,17 @@ class ScholarFinder:
         options.add_argument("--window-size=1920,1080")
         options.add_argument("--remote-debugging-port=9222")
         options.add_argument("--disable-blink-features=AutomationControlled")
-        options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        options.add_experimental_option('useAutomationExtension', False)
+        options.add_argument("--lang=en-US")
         options.add_argument("--user-data-dir=/tmp/chrome-profile")
 
-        # ✅ Thêm dòng này để Chromium hoạt động đúng trên Ubuntu runner
+        # 🧩 Giả lập user-agent thật
+        options.add_argument(
+            "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/122.0.6261.129 Safari/537.36"
+        )
+
+        # ✅ Chromium binary trên Ubuntu
         options.binary_location = "/usr/bin/chromium-browser"
 
         from selenium.webdriver.chrome.service import Service
@@ -42,14 +48,27 @@ class ScholarFinder:
 
         self.driver = webdriver.Chrome(service=service, options=options)
 
-        # Ẩn dấu hiệu automation
+        # Ẩn navigator.webdriver
         self.driver.execute_cdp_cmd(
             "Page.addScriptToEvaluateOnNewDocument",
             {"source": "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"}
         )
 
-        print("✅ Chrome driver khởi động thành công")
+        # 🔹 Mở Google Scholar thủ công, kiểm tra có redirect không
+        self.driver.get("https://scholar.google.com/")
+        time.sleep(5)
+        current_url = self.driver.current_url
+        page_source = self.driver.page_source[:500].lower()
+
+        if "sorry" in page_source or "unusual traffic" in page_source:
+            print("⚠️ Google Scholar detected bot or CAPTCHA. Switching to safer user-agent.")
+            self.driver.quit()
+            # Dừng sớm để tránh loop vô hạn
+            raise RuntimeError("Google Scholar blocked the request (CAPTCHA detected).")
+
+        print("✅ Chrome driver khởi động và truy cập Google Scholar thành công")
         return self.driver
+
 
 
     def extract_pub_date(self, authors_text: str):
