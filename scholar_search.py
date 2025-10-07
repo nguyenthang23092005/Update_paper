@@ -31,7 +31,6 @@ class ScholarFinder:
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
         options.add_argument("--user-data-dir=/tmp/chrome-profile")
-        options.binary_location = "/usr/bin/google-chrome"
 
         self.driver = webdriver.Chrome(options=options)
         # self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
