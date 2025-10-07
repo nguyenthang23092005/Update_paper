@@ -20,20 +20,37 @@ class ScholarFinder:
         self.driver = None
 
     def setup_browser(self):
-        """Setup Chrome browser với các tùy chọn an toàn"""
+        """Setup Chrome/Chromium cho môi trường GitHub Actions (Ubuntu headless)"""
         options = Options()
         options.add_argument("--headless=new")
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
-        options.add_argument('--disable-blink-features=AutomationControlled')
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--disable-extensions")
+        options.add_argument("--window-size=1920,1080")
+        options.add_argument("--remote-debugging-port=9222")
+        options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
         options.add_argument("--user-data-dir=/tmp/chrome-profile")
 
-        self.driver = webdriver.Chrome(options=options)
-        # self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-        self.driver.execute_cdp_cmd( "Page.addScriptToEvaluateOnNewDocument", {"source": "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"} )
+        # ✅ Thêm dòng này để Chromium hoạt động đúng trên Ubuntu runner
+        options.binary_location = "/usr/bin/chromium-browser"
+
+        from selenium.webdriver.chrome.service import Service
+        service = Service("/usr/bin/chromedriver")
+
+        self.driver = webdriver.Chrome(service=service, options=options)
+
+        # Ẩn dấu hiệu automation
+        self.driver.execute_cdp_cmd(
+            "Page.addScriptToEvaluateOnNewDocument",
+            {"source": "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"}
+        )
+
+        print("✅ Chrome driver khởi động thành công")
         return self.driver
+
 
     def extract_pub_date(self, authors_text: str):
         """
