@@ -28,16 +28,16 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Install Chromium and ChromeDriver
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser chromium-chromedriver
-          # Bỏ qua nếu file đã tồn tại
-          sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver || true
+      # - name: Install Chromium and ChromeDriver
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y chromium-browser chromium-chromedriver
+      #     # Bỏ qua nếu file đã tồn tại
+      #     sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver || true
 
-          # Kiểm tra phiên bản
-          chromium-browser --version || echo "chromium not found"
-          chromedriver --version || echo "chromedriver not found"
+      #     # Kiểm tra phiên bản
+      #     chromium-browser --version || echo "chromium not found"
+      #     chromedriver --version || echo "chromedriver not found"
 
       - name: Run main script
         env:
