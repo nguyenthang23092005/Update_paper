@@ -9,7 +9,6 @@ from gspread_formatting import (
     CellFormat, Color, TextFormat, format_cell_range, set_column_width
 )
 from googleapiclient.discovery import build
-import re
 
 RESULTS_DIR = "results"
 DATABASE_DIR = "database"
@@ -18,87 +17,18 @@ SPREADSHEET_ID = "1ZLTODE7spM_M4mPPy3qeCoR51I_ectk0D5cTiWXWT_k"
 creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 
 
-import os
-import re
-import json
-from google.oauth2.service_account import Credentials
-
-def fix_json_file(input_file, output_file=None):
-    """
-    Sửa file JSON phổ biến (dùng cho Google Service Account):
-    - Chuyển nháy đơn ' thành nháy kép "
-    - Loại bỏ comment // hoặc #
-    - Loại bỏ các ký tự trắng thừa
-    - Ghi ra file mới chuẩn JSON
-    """
-    if output_file is None:
-        output_file = input_file  # ghi đè nếu không chỉ định
-
-    if not os.path.exists(input_file):
-        print(f"❌ File không tồn tại: {input_file}")
-        return False
-
-    with open(input_file, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    # 1. Loại bỏ comment kiểu // hoặc #
-    content = re.sub(r'//.*', '', content)
-    content = re.sub(r'#.*', '', content)
-
-    # 2. Chuyển nháy đơn ' thành nháy kép "
-    # Chỉ thay nháy đơn xung quanh key và value, không làm hỏng private_key
-    # Đối với private_key, giữ nguyên nội dung
-    def replace_quotes(match):
-        key, value = match.groups()
-        # Nếu key là private_key, giữ nguyên value
-        if key.strip() == "private_key":
-            return f'"{key}": "{value}"'
-        return f'"{key}": "{value}"'
-
-    # Regex: 'key': 'value' (không áp dụng với giá trị nhiều dòng trong private_key)
-    pattern = re.compile(r"'([^']+)'\s*:\s*'([^']+)'")
-    content = pattern.sub(replace_quotes, content)
-
-    # 3. Loại bỏ các ký tự trắng thừa đầu/cuối
-    content = content.strip()
-
-    # 4. Kiểm tra JSON hợp lệ
-    try:
-        data = json.loads(content)
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
-        print(f"✅ File JSON chuẩn đã lưu: {output_file}")
-        return True
-    except json.JSONDecodeError as e:
-        print("❌ JSON vẫn lỗi:", e)
-        return False
-
 def get_creds():
     scopes = ["https://www.googleapis.com/auth/spreadsheets"]
 
-    # 1️⃣ Dành cho GitHub Actions
+    # Dành cho GitHub Actions
     creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
     if creds_path and os.path.exists(creds_path):
-        try:
-            return Credentials.from_service_account_file(creds_path, scopes=scopes)
-        except json.JSONDecodeError:
-            print(f"⚠️ File JSON {creds_path} bị lỗi, đang sửa định dạng...")
-            if fix_json_file(creds_path):
-                return Credentials.from_service_account_file(creds_path, scopes=scopes)
-            else:
-                raise ValueError(f"❌ Không thể sửa file JSON: {creds_path}")
+        return Credentials.from_service_account_file(creds_path, scopes=scopes)
 
-    # 2️⃣ Dành cho chạy local
+    # Dành cho chạy local
     local_path = r"D:\GitHub\Key_gg_sheet\eternal-dynamo-474316-f6-382e31e4ae72.json"
     if os.path.exists(local_path):
-        try:
-            return Credentials.from_service_account_file(local_path, scopes=scopes)
-        except json.JSONDecodeError:
-            print(f"⚠️ File JSON {local_path} bị lỗi, đang sửa định dạng...")
-            if fix_json_file(local_path):
-                return Credentials.from_service_account_file(local_path, scopes=scopes)
-            else:
-                raise ValueError(f"❌ Không thể sửa file JSON: {local_path}")
+        return Credentials.from_service_account_file(local_path, scopes=scopes)
 
     raise FileNotFoundError("❌ Không tìm thấy file Google credential nào hợp lệ.")
 
