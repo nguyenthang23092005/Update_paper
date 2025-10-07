@@ -18,16 +18,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Chrome
-        uses: browser-actions/setup-chrome@v2
-        with:
-          chrome-version: 'stable'
 
-      - name: Setup Chromedriver
-        uses: nanasess/setup-chromedriver@v1
-        with:
-          version: 'latest'
-          
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
