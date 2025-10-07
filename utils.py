@@ -17,18 +17,65 @@ SPREADSHEET_ID = "1ZLTODE7spM_M4mPPy3qeCoR51I_ectk0D5cTiWXWT_k"
 creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 
 
+import os
+import re
+import json
+from google.oauth2.service_account import Credentials
+
+def fix_json_file(input_file, output_file=None):
+    """
+    Sửa định dạng file JSON phổ biến:
+    - Chuyển nháy đơn ' thành nháy kép "
+    - Loại bỏ comment (// hoặc #)
+    - Ghi ra file mới chuẩn JSON
+    """
+    if output_file is None:
+        output_file = input_file
+
+    with open(input_file, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    # Loại bỏ comment
+    content = re.sub(r'//.*', '', content)
+    content = re.sub(r'#.*', '', content)
+
+    # Chuyển nháy đơn thành nháy kép
+    content = re.sub(r"\'([^']+)\'", r'"\1"', content)
+
+    try:
+        data = json.loads(content)
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+        return True
+    except json.JSONDecodeError:
+        return False
+
 def get_creds():
     scopes = ["https://www.googleapis.com/auth/spreadsheets"]
 
-    # Dành cho GitHub Actions
+    # 1️⃣ Dành cho GitHub Actions
     creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
     if creds_path and os.path.exists(creds_path):
-        return Credentials.from_service_account_file(creds_path, scopes=scopes)
+        try:
+            return Credentials.from_service_account_file(creds_path, scopes=scopes)
+        except json.JSONDecodeError:
+            print(f"⚠️ File JSON {creds_path} bị lỗi, đang sửa định dạng...")
+            if fix_json_file(creds_path):
+                return Credentials.from_service_account_file(creds_path, scopes=scopes)
+            else:
+                raise ValueError(f"❌ Không thể sửa file JSON: {creds_path}")
 
-    # Dành cho chạy local
+    # 2️⃣ Dành cho chạy local
     local_path = r"D:\GitHub\Key_gg_sheet\eternal-dynamo-474316-f6-382e31e4ae72.json"
     if os.path.exists(local_path):
-        return Credentials.from_service_account_file(local_path, scopes=scopes)
+        try:
+            return Credentials.from_service_account_file(local_path, scopes=scopes)
+        except json.JSONDecodeError:
+            print(f"⚠️ File JSON {local_path} bị lỗi, đang sửa định dạng...")
+            if fix_json_file(local_path):
+                return Credentials.from_service_account_file(local_path, scopes=scopes)
+            else:
+                raise ValueError(f"❌ Không thể sửa file JSON: {local_path}")
 
     raise FileNotFoundError("❌ Không tìm thấy file Google credential nào hợp lệ.")
 
