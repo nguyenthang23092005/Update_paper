@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
+
 
 def get_target_date(days_ago=1):
     """Lấy ngày YYYY-MM-DD của hôm qua (hoặc n ngày trước)"""
@@ -30,7 +30,6 @@ class ScholarFinder:
         options.add_experimental_option('useAutomationExtension', False)
         options.add_argument("--user-data-dir=/tmp/chrome-profile")
         
-        self.service = Service("/usr/bin/chromedriver")
 
         self.driver = webdriver.Chrome(options=options)
         # self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
