@@ -1,2 +1,3 @@
-from utils import convert_latest_json_to_gsheet
-convert_latest_json_to_gsheet()
+import os
+
+creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
