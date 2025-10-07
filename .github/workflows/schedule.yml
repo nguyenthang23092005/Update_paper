@@ -46,7 +46,7 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS: sa_key.json
         run: |
-          python test.py
+          python run.py
 
       - name: Commit and push results
         env:
