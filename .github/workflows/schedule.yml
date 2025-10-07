@@ -38,7 +38,10 @@ jobs:
       - name: Run main script
         env:
           GOOGLE_APPLICATION_CREDENTIALS: sa_key.json
-        run: python test.py
+        run: |
+          echo "🔍 Checking credential file content..."
+          head -n 5 sa_key.json || echo "❌ File empty!"
+          python test.py
 
       - name: Commit and push results
         env:
