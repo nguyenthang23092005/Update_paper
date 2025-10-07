@@ -9,6 +9,7 @@ from gspread_formatting import (
     CellFormat, Color, TextFormat, format_cell_range, set_column_width
 )
 from googleapiclient.discovery import build
+import re
 
 RESULTS_DIR = "results"
 DATABASE_DIR = "database"
@@ -24,30 +25,52 @@ from google.oauth2.service_account import Credentials
 
 def fix_json_file(input_file, output_file=None):
     """
-    Sửa định dạng file JSON phổ biến:
+    Sửa file JSON phổ biến (dùng cho Google Service Account):
     - Chuyển nháy đơn ' thành nháy kép "
-    - Loại bỏ comment (// hoặc #)
+    - Loại bỏ comment // hoặc #
+    - Loại bỏ các ký tự trắng thừa
     - Ghi ra file mới chuẩn JSON
     """
     if output_file is None:
-        output_file = input_file
+        output_file = input_file  # ghi đè nếu không chỉ định
+
+    if not os.path.exists(input_file):
+        print(f"❌ File không tồn tại: {input_file}")
+        return False
 
     with open(input_file, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # Loại bỏ comment
+    # 1. Loại bỏ comment kiểu // hoặc #
     content = re.sub(r'//.*', '', content)
     content = re.sub(r'#.*', '', content)
 
-    # Chuyển nháy đơn thành nháy kép
-    content = re.sub(r"\'([^']+)\'", r'"\1"', content)
+    # 2. Chuyển nháy đơn ' thành nháy kép "
+    # Chỉ thay nháy đơn xung quanh key và value, không làm hỏng private_key
+    # Đối với private_key, giữ nguyên nội dung
+    def replace_quotes(match):
+        key, value = match.groups()
+        # Nếu key là private_key, giữ nguyên value
+        if key.strip() == "private_key":
+            return f'"{key}": "{value}"'
+        return f'"{key}": "{value}"'
 
+    # Regex: 'key': 'value' (không áp dụng với giá trị nhiều dòng trong private_key)
+    pattern = re.compile(r"'([^']+)'\s*:\s*'([^']+)'")
+    content = pattern.sub(replace_quotes, content)
+
+    # 3. Loại bỏ các ký tự trắng thừa đầu/cuối
+    content = content.strip()
+
+    # 4. Kiểm tra JSON hợp lệ
     try:
         data = json.loads(content)
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
+        print(f"✅ File JSON chuẩn đã lưu: {output_file}")
         return True
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        print("❌ JSON vẫn lỗi:", e)
         return False
 
 def get_creds():
