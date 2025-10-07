@@ -1,63 +1,49 @@
 name: Scheduled Paper Collector
 
 on:
-  workflow_dispatch:       # Cho phép chạy thủ công
+  workflow_dispatch:
   schedule:
-    - cron: "0 17 * * *"  # 0h sáng VN (17h UTC hôm trước)
-    - cron: "0 5 * * *"   # 12h trưa VN (5h UTC)
+    - cron: "0 17 * * *"   # 0h sáng VN (17h UTC hôm trước)
+    - cron: "0 5 * * *"    # 12h trưa VN (5h UTC)
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
     permissions:
-      contents: write    # Cho phép commit/push
+      contents: write   
 
     steps:
-      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           persist-credentials: false
 
-      # 2️⃣ Setup Python
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.13'
 
-      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install selenium webdriver-manager gspread google-auth oauth2client
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      # 4️⃣ Setup Chrome + Chromedriver (optional, webdriver-manager tự handle)
-      - name: Install Chrome (optional)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y unzip xvfb libxi6 libgconf-2-4 libxss1 libnss3 libglib2.0-0
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo dpkg -i google-chrome-stable_current_amd64.deb || sudo apt-get -f install -y
-
-      # 5️⃣ Run main Python script
       - name: Run main script
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: sa_key.json  # nếu dùng GSheet API
+          GOOGLE_APPLICATION_CREDENTIALS: sa_key.json
         run: python run.py
 
-      # 6️⃣ Commit and push results
       - name: Commit and push results
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
           git add results/ database/
-          git commit -m "New papers $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
-
-          # Pull trước khi push để tránh conflicts
+          git commit -m "new paper $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          
           git fetch origin main
-          git pull --rebase origin main || echo "Rebase failed, skipping"
-
+          git pull --rebase origin main
+          
           git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
