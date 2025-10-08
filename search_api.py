@@ -13,7 +13,7 @@ def decode_openalex_abstract(inverted_index):
     words = sorted([(pos, word) for word, positions in inverted_index.items() for pos in positions])
     return " ".join(word for pos, word in words)
 
-def search_openalex(query="Non-Destructive Testing", rows=100, date=None):
+def search_openalex(query: str, rows: int, date=None):
     url = "https://api.openalex.org/works"
     params = {
         "search": query,
@@ -66,7 +66,7 @@ def search_openalex(query="Non-Destructive Testing", rows=100, date=None):
 # ========================
 # 2. Semantic Scholar API
 # ========================
-def search_semantic_scholar(query="Non-Destructive Testing", rows=100, date=None):
+def search_semantic_scholar(query: str, rows : int, date=None):
     url = "https://api.semanticscholar.org/graph/v1/paper/search"
     params = {
         "query": query,
@@ -113,7 +113,7 @@ def search_semantic_scholar(query="Non-Destructive Testing", rows=100, date=None
 # ========================
 # 3. arXiv API
 # ========================
-def search_arxiv(query="Non-Destructive Testing", rows=100, date=None):
+def search_arxiv(query: str, rows: int, date=None):
     url = "http://export.arxiv.org/api/query"
     params = {
         "search_query": f"all:{query}",
@@ -163,7 +163,7 @@ def search_arxiv(query="Non-Destructive Testing", rows=100, date=None):
 # ========================
 # 4. CrossRef API
 # ========================
-def search_crossref(query="Non-Destructive Testing", rows=100, date=None):
+def search_crossref(query: str, rows: int, date=None):
     url = "https://api.crossref.org/works"
     params = {
         "query": query,

@@ -18,7 +18,7 @@ if not os.path.exists(ENV_PATH):
 
 load_dotenv(ENV_PATH)
 
-keyword_tab1 = "Non-Destructive Testing"
+keyword_tab1 = "pulsh edge current"
 max_results_tab1 = 30
 
 
@@ -45,7 +45,7 @@ enriched_results = enrich_with_firecrawl(unique_results)
 
 # 5. Lọc bài không liên quan
 print("⏳ Đang lọc bài báo...")
-top_results = filter_top_papers(enriched_results)
+top_results = filter_top_papers(enriched_results, keywords=[keyword_tab1])
 
 # 6. Tóm tắt abstract
 print("⏳ Đang tóm tắt abstract...")

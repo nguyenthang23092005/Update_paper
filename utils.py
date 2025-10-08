@@ -601,7 +601,7 @@ def append_json_to_gdoc(df, date_str):
             f"{i+1}. {title}\n"
             f"Tác giả: {authors}\n"
             f"Ngày xuất bản: {pubdate}\n\n"
-            f"Summary Abstract: {summary}\n\n"
+            f"Innovative: {summary}\n\n"
         )
 
         insert_requests.append({
@@ -814,7 +814,7 @@ def evaluate_paper_combined(abstract, keywords):
 # =========================================
 # Hàm lọc bài báo không có abstract hoặc không liên quan
 # =========================================
-def filter_top_papers(results, keywords=["Non-Destructive Testing"], top_n=10):
+def filter_top_papers(results, keywords:list, top_n=10):
     """
     Lọc các bài báo liên quan và chọn ra top N bài báo hay nhất dựa trên score AI.
 
