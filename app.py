@@ -6,7 +6,7 @@ import json
 import os
 import glob
 from dotenv import load_dotenv
-from utils import filter_duplicates, save_results_to_json, save_results_to_database,get_latest_json,convert_latest_json_to_gsheet,enrich_with_firecrawl, summarize_filtered_papers, filter_top_papers,convert_latest_json_to_gdoc
+from utils import filter_duplicates, save_results_to_json, save_results_to_database,get_latest_json,convert_latest_json_to_gsheet,enrich_with_firecrawl, summarize_filtered_papers, filter_top_papers,convert_latest_json_to_gdoc,innovative_filtered_papers
 
 # ===================== PAGE CONFIG =====================
 st.set_page_config(page_title="Paper Search App", layout="wide")
@@ -70,20 +70,24 @@ with tab1:
                 st.info("⏳ Đang lọc bài báo...")
                 top_results = filter_top_papers(enriched_results)
 
-                # 6. Tóm tắt abstract
-                st.info("⏳ Đang tóm tắt abstract...")
-                summarized_results = summarize_filtered_papers(top_results)
+                # # 6. Tóm tắt abstract
+                # st.info("⏳ Đang tóm tắt abstract...")
+                # summarized_results = summarize_filtered_papers(top_results)
 
+                # 7. Tìm điểm sáng tạo về phương pháp
+                st.info("⏳ Đang tìm điểm sáng tạo về phương pháp...")
+                innovative_results = innovative_filtered_papers(top_results)
+                
                 # 7. Lưu kết quả
                 saved_file = save_results_to_json(
-                    summarized_results,
+                    innovative_results,
                     output_dir=RESULTS_DIR,
                     prefix=f"allapi_scholar_{keyword_tab1.replace(' ', '_')}"
                 )
                 if saved_file:
                     save_results_to_database(saved_file)
                     st.success(f"✅ Đã lưu kết quả enriched vào: {saved_file}")
-                convert_latest_json_to_gsheet()
+                #convert_latest_json_to_gsheet()
                 convert_latest_json_to_gdoc()
 
                 # 8. Hiển thị kết quả

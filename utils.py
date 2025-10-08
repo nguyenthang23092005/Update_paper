@@ -595,13 +595,15 @@ def append_json_to_gdoc(df, date_str):
         title = row.get('title', 'Không có tiêu đề')
         authors = row.get('authors', 'Không rõ tác giả')
         pubdate = row.get('pub_date', 'Không rõ ngày')
-        summary = row.get('summary', '').strip()
+        #summary = row.get('summary', '').strip()
+        innovative = row.get('innovative', '').strip()
 
         text_block = (
             f"{i+1}. {title}\n"
             f"Tác giả: {authors}\n"
             f"Ngày xuất bản: {pubdate}\n\n"
-            f"Innovative: {summary}\n\n"
+            #f"Summary: {summary}\n\n"
+            f"Innovative: {innovative}\n\n"
         )
 
         insert_requests.append({
@@ -905,6 +907,68 @@ def summarize_filtered_papers(filtered_papers):
         if abstract:
             print(f"Summarizing abstract for: {title}")
             paper["summary"] = summarize_with_genai(abstract)
+            time.sleep(16)  
+
+    return filtered_papers
+
+def innovative_with_genai(abstract):
+    """
+    Dùng Gemini API để phân tích và tìm điểm sáng tạo về phương pháp (methodological innovation)
+    trong bài báo.
+
+    Parameters:
+        abstract (str): Abstract của bài báo.
+
+    Returns:
+        str: Mô tả ngắn gọn điểm sáng tạo về phương pháp hoặc kỹ thuật được sử dụng.
+    """
+    prompt = f"""
+    You are an academic reviewer. Analyze the abstract below and identify the methodological innovation it presents.
+
+    Focus specifically on what is new, improved, or distinctive about the research **method**, 
+    technique, framework, or experimental approach used.
+
+    Do not describe the general topic or findings. Only explain the innovation in the method or process.
+    Answer in 2–4 clear sentences using simple academic English.
+
+    Abstract:
+    {abstract}
+    """
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+            config=GenerateContentConfig(temperature=0.3)
+        )
+        return response.text.strip()
+    except Exception as e:
+        print(f"[Gemini Error - Innovation] {e}")
+        return "Tìm điểm sáng tạo về phương pháp không thành công"
+
+
+
+
+# =========================================
+# Hàm tóm tắt toàn bộ danh sách bài đã lọc
+# =========================================
+def innovative_filtered_papers(filtered_papers):
+    """
+    Tìm điểm sáng tạo của tất cả các bài báo đã lọc.
+
+    Parameters:
+        filtered_papers (list): Danh sách bài báo đã lọc, mỗi bài chứa 'abstract' và 'title'.
+
+    Returns:
+        list: Danh sách bài báo với key 'innovative' chứa điểm sáng tạo của tất cả các bài báo.
+    """
+    for paper in filtered_papers:
+        abstract = paper.get("abstract", "").strip()
+        title = paper.get("title", "Untitled")
+        
+        if abstract:
+            print(f"Innovating for: {title}")
+            paper["innovative"] = innovative_with_genai(abstract)
             time.sleep(16)  
 
     return filtered_papers

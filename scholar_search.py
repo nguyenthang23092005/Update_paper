@@ -146,7 +146,7 @@ class ScholarFinder:
                 "access_status": "error"
             }
 
-    def search_google_scholar(self, search_query: str, max_papers: int = 20, date: str = None) -> List[Dict]:
+    def search_google_scholar(self, search_query: str, max_papers: int, date: str = None) -> List[Dict]:
         """
         Tìm kiếm Google Scholar và trả về danh sách bài báo mới nhất,
         chỉ lấy đúng ngày (nếu có date).

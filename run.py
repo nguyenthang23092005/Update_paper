@@ -1,7 +1,7 @@
 from scholar_search import run_scholar_search
 from search_api import search_openalex,  search_arxiv, search_crossref
 from dotenv import load_dotenv
-from utils import filter_duplicates, save_results_to_json, save_results_to_database,convert_latest_json_to_gsheet,enrich_with_firecrawl, summarize_filtered_papers, filter_top_papers,convert_latest_json_to_gdoc
+from utils import filter_duplicates, save_results_to_json, save_results_to_database,convert_latest_json_to_gsheet,enrich_with_firecrawl, summarize_filtered_papers, filter_top_papers,convert_latest_json_to_gdoc,innovative_filtered_papers
 import os
 
 
@@ -18,7 +18,7 @@ if not os.path.exists(ENV_PATH):
 
 load_dotenv(ENV_PATH)
 
-keyword_tab1 = "pulsh edge current"
+keyword_tab1 = "Pulsed Eddy Current (PEC)"
 max_results_tab1 = 30
 
 
@@ -47,19 +47,23 @@ enriched_results = enrich_with_firecrawl(unique_results)
 print("⏳ Đang lọc bài báo...")
 top_results = filter_top_papers(enriched_results, keywords=[keyword_tab1])
 
-# 6. Tóm tắt abstract
-print("⏳ Đang tóm tắt abstract...")
-summarized_results = summarize_filtered_papers(top_results)
+# # 6. Tóm tắt abstract
+# print("⏳ Đang tóm tắt abstract...")
+# summarized_results = summarize_filtered_papers(top_results)
 
-# 7. Lưu kết quả
+# 7. Tìm điểm sáng tạo
+print("⏳ Đang tìm điểm sáng tạo về phương pháp...")
+innovative_results = innovative_filtered_papers(top_results)
+
+# 8. Lưu kết quả
 saved_file = save_results_to_json(
-    summarized_results,
+    innovative_results,
     output_dir=RESULTS_DIR,
     prefix=f"allapi_scholar_{keyword_tab1.replace(' ', '_')}"
 )
 if saved_file:
     save_results_to_database(saved_file)
     print(f"✅ Đã lưu kết quả enriched vào: {saved_file}")
-# 8. Lưu trên gg sheet
-convert_latest_json_to_gsheet()
+# 8. Lưu trên gg docs
+#convert_latest_json_to_gsheet()
 convert_latest_json_to_gdoc()
