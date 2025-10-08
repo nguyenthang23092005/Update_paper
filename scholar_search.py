@@ -141,7 +141,7 @@ class ScholarFinder:
         print(f"Searching Google Scholar for: {search_query}")
         self.driver.get("https://scholar.google.com")
         time.sleep(3)
-
+        self.driver.save_screenshot(r"D:\GitHub\Update_paper\debug_before_search.png")
         # Nhập từ khóa
         search_box = WebDriverWait(self.driver, 30).until(
             EC.presence_of_element_located((By.NAME, "q"))
