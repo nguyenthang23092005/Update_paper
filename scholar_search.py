@@ -28,23 +28,36 @@ class ScholarFinder:
         options.add_argument('--disable-blink-features=AutomationControlled')
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
-        options.add_argument("--user-data-dir=/tmp/chrome-profile")
         options.add_argument("window-size=1920,1080")
         options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/141.0.0.0 Safari/537.36")
 
 
         self.driver = webdriver.Chrome(options=options)
-        # self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
         self.driver.execute_cdp_cmd( "Page.addScriptToEvaluateOnNewDocument", {"source": "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"} )
         return self.driver
 
-    def extract_pub_date(self, authors_text: str):
-        """
-        Lấy năm xuất bản từ chuỗi thông tin tác giả trên Google Scholar
-        """
-        year_match = re.search(r'\b(19|20)\d{2}\b', authors_text)
+    def extract_pub_date(self, text: str):
+        # 1. dd/mm/yyyy hoặc d/m/yyyy
+        date_match = re.search(r'\b(\d{1,2})[/-](\d{1,2})[/-]((?:19|20)\d{2})\b', text)
+        if date_match:
+            day, month, year = map(int, date_match.groups())
+            return f"{year}-{month:02d}-{day:02d}"
+
+        # 2. d Month yyyy
+        date_match2 = re.search(r'\b(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+((?:19|20)\d{2})\b', text, re.IGNORECASE)
+        if date_match2:
+            day = int(date_match2.group(1))
+            month_str = date_match2.group(2)
+            year = int(date_match2.group(3))
+            month = datetime.strptime(month_str[:3], "%b").month
+            return f"{year}-{month:02d}-{day:02d}"
+
+        # 3. Chỉ có năm
+        year_match = re.search(r'\b((?:19|20)\d{2})\b', text)
         if year_match:
-            return year_match.group(0)
+            year = int(year_match.group(1))
+            return f"{year}-01-01"
+
         return "Not Available"
 
     def get_paper_details_from_link(self, paper_url: str, paper_rank: int) -> Dict:
@@ -141,7 +154,7 @@ class ScholarFinder:
         print(f"Searching Google Scholar for: {search_query}")
         self.driver.get("https://scholar.google.com")
         time.sleep(3)
-        self.driver.save_screenshot(r"D:\GitHub\Update_paper\debug_before_search.png")
+        # self.driver.save_screenshot(r"D:\GitHub\Update_paper\debug_before_search.png")
         # Nhập từ khóa
         search_box = WebDriverWait(self.driver, 30).until(
             EC.presence_of_element_located((By.NAME, "q"))
@@ -184,9 +197,10 @@ class ScholarFinder:
                 pub_date = self.extract_pub_date(authors_text)
 
                 # 🔹 Lọc theo ngày (nếu có yêu cầu)
-                if date and pub_date != date:
-                    print(f"✘ Bỏ qua paper {idx} vì năm {pub_date} khác {date}")
-                    continue
+                if date:
+                    if not pub_date.startswith(date):
+                        print(f"✘ Bỏ qua paper {idx} vì pub_date {pub_date} khác {date}")
+                        continue
 
                 try:
                     citation_element = result.find_element(By.XPATH, ".//a[contains(text(), 'Cited by')]")

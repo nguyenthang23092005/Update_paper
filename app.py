@@ -1,12 +1,12 @@
 import streamlit as st
 from scholar_search import run_scholar_search
-from search_api import search_openalex,  search_arxiv, search_crossref,enrich_with_firecrawl, summarize_filtered_papers, filter_irrelevant_papers
+from search_api import search_openalex,  search_arxiv, search_crossref
 import pandas as pd
 import json
 import os
 import glob
 from dotenv import load_dotenv
-from utils import filter_duplicates, save_results_to_json, save_results_to_database,get_latest_json,convert_latest_json_to_gsheet
+from utils import filter_duplicates, save_results_to_json, save_results_to_database,get_latest_json,convert_latest_json_to_gsheet,enrich_with_firecrawl, summarize_filtered_papers, filter_top_papers
 
 
 # ===================== PAGE CONFIG =====================
@@ -68,12 +68,12 @@ with tab1:
                 enriched_results = enrich_with_firecrawl(unique_results)
 
                 # 5. Lọc bài không liên quan
-                st.info("⏳ Đang lọc bài không liên quan...")
-                filtered_results = filter_irrelevant_papers(enriched_results)
+                st.info("⏳ Đang lọc bài báo...")
+                top_results = filter_top_papers(enriched_results)
 
                 # 6. Tóm tắt abstract
                 st.info("⏳ Đang tóm tắt abstract...")
-                summarized_results = summarize_filtered_papers(filtered_results)
+                summarized_results = summarize_filtered_papers(top_results)
 
                 # 7. Lưu kết quả
                 saved_file = save_results_to_json(
@@ -83,9 +83,9 @@ with tab1:
                 )
                 if saved_file:
                     save_results_to_database(saved_file)
+                    st.success(f"✅ Đã lưu kết quả enriched vào: {saved_file}")
                 convert_latest_json_to_gsheet()
 
-                st.success(f"✅ Đã lưu kết quả enriched vào: {saved_file}")
 
                 # 8. Hiển thị kết quả
                 latest_file = get_latest_json()
