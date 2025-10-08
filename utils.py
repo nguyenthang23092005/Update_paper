@@ -521,63 +521,86 @@ def convert_latest_json_to_gsheet():
  
     
 def append_json_to_gdoc(df, date_str):
-    """Thêm nội dung JSON vào Google Docs, định dạng văn bản."""
+    """Thêm hoặc thay thế nội dung JSON của ngày hôm nay vào Google Docs."""
     creds = get_creds()
     service = build("docs", "v1", credentials=creds)
     doc = service.documents().get(documentId=DOCUMENT_ID).execute()
-    doc_content = doc.get('body').get('content', [])
+    doc_content = doc.get('body', {}).get('content', [])
 
-    # --- Lấy chỉ số cuối tài liệu ---
-    end_index = doc_content[-1]['endIndex'] if doc_content else 1
-
-    # --- Kiểm tra xem ngày đã tồn tại chưa ---
     day_header = f" Ngày {date_str}"
-    day_exists = any(
-        day_header in el.get('paragraph', {}).get('elements', [{}])[0].get('textRun', {}).get('content', '')
-        for el in doc_content
-    )
-
     insert_requests = []
     style_requests = []
 
-    # Nếu chưa có ngày -> thêm mới ở cuối
-    if not day_exists:
-        insert_requests.append({
-            "insertText": {
-                "location": {"index": end_index - 1},
-                "text": f"\n{day_header}\n\n"
-            }
-        })
-        # Sau khi thêm header, tăng end_index
-        end_index += len(day_header) + 3
+    # --- Tìm chỉ số đầu & cuối của ngày hiện có ---
+    start_index, end_index = None, None
+    for i, el in enumerate(doc_content):
+        text = el.get('paragraph', {}).get('elements', [{}])[0].get('textRun', {}).get('content', '')
+        if day_header in text:
+            start_index = el.get('startIndex', 1)
+            # tìm ngày tiếp theo
+            for j in range(i + 1, len(doc_content)):
+                next_text = doc_content[j].get('paragraph', {}).get('elements', [{}])[0].get('textRun', {}).get('content', '')
+                if next_text.strip().startswith("Ngày "):
+                    end_index = doc_content[j].get('startIndex', doc_content[-1]['endIndex'])
+                    break
+            break
 
-        style_requests.append({
-            "updateTextStyle": {
-                "range": {
-                    "startIndex": end_index - len(day_header) - 2,
-                    "endIndex": end_index - 2
-                },
-                "textStyle": {
-                    "bold": True,
-                    "foregroundColor": {"color": {"rgbColor": {"red": 1, "green": 0, "blue": 0}}}
-                },
-                "fields": "bold,foregroundColor"
-            }
-        })
+    # Nếu không tìm thấy ngày hôm nay → chèn vào cuối
+    if start_index is None:
+        end_index = doc_content[-1]['endIndex'] if doc_content else 1
+    else:
+        # Nếu tìm thấy mà không có ngày tiếp theo, thì lấy đến cuối tài liệu
+        if end_index is None:
+            end_index = doc_content[-1]['endIndex']
 
-    # Ghi từng bài báo (ở cuối)
+        # --- Xóa toàn bộ vùng ngày hôm nay ---
+        delete_req = [{
+            "deleteContentRange": {
+                "range": {"startIndex": start_index, "endIndex": end_index - 1}
+            }
+        }]
+        service.documents().batchUpdate(documentId=DOCUMENT_ID, body={"requests": delete_req}).execute()
+        print(f"🗑️ Đã xóa nội dung cũ của ngày {date_str}")
+        # Sau khi xóa, vị trí chèn sẽ là start_index
+        end_index = start_index
+
+    # --- Thêm header ngày ---
+    insert_requests.append({
+        "insertText": {
+            "location": {"index": end_index - 1},
+            "text": f"\n{day_header}\n\n"
+        }
+    })
+    header_start = end_index
+    header_end = header_start + len(day_header)
+
+    style_requests.append({
+        "updateTextStyle": {
+            "range": {
+                "startIndex": header_start,
+                "endIndex": header_end
+            },
+            "textStyle": {
+                "bold": True,
+                "foregroundColor": {"color": {"rgbColor": {"red": 1, "green": 0, "blue": 0}}}
+            },
+            "fields": "bold,foregroundColor"
+        }
+    })
+
+    end_index += len(day_header) + 3
+
+    # --- Ghi từng bài báo ---
     for i, row in df.iterrows():
         title = row.get('title', 'Không có tiêu đề')
         authors = row.get('authors', 'Không rõ tác giả')
         pubdate = row.get('pub_date', 'Không rõ ngày')
-        #abstract = row.get('abstract', '').strip()
         summary = row.get('summary', '').strip()
 
         text_block = (
             f"{i+1}. {title}\n"
             f"Tác giả: {authors}\n"
             f"Ngày xuất bản: {pubdate}\n\n"
-            #f"Abstract: {abstract}\n\n"
             f"Summary Abstract: {summary}\n\n"
         )
 
@@ -588,15 +611,12 @@ def append_json_to_gdoc(df, date_str):
             }
         })
 
-        # Định dạng tiêu đề bài báo (in đậm, đen)
+        # In đậm tiêu đề bài báo
         title_start = end_index - 1 + len(f"{i+1}. ")
         title_end = title_start + len(title)
         style_requests.append({
             "updateTextStyle": {
-                "range": {
-                    "startIndex": title_start,
-                    "endIndex": title_end
-                },
+                "range": {"startIndex": title_start, "endIndex": title_end},
                 "textStyle": {
                     "bold": True,
                     "foregroundColor": {"color": {"rgbColor": {"red": 0, "green": 0, "blue": 0}}}
@@ -607,19 +627,19 @@ def append_json_to_gdoc(df, date_str):
 
         end_index += len(text_block)
 
-    # --- Thực thi ---
-    # 1️⃣ Chèn text
+    # --- 1️⃣ Chèn text ---
     service.documents().batchUpdate(
         documentId=DOCUMENT_ID, body={"requests": insert_requests}
     ).execute()
 
-    # 2️⃣ Định dạng
+    # --- 2️⃣ Định dạng ---
     if style_requests:
         service.documents().batchUpdate(
             documentId=DOCUMENT_ID, body={"requests": style_requests}
         ).execute()
 
-    print(f"✅ Đã thêm dữ liệu ngày {date_str} vào Google Docs (ở cuối tài liệu).")
+    print(f"✅ Đã cập nhật nội dung ngày {date_str} vào Google Docs.")
+
 
 
 def convert_latest_json_to_gdoc():
