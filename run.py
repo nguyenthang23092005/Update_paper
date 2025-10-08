@@ -1,7 +1,7 @@
 from scholar_search import run_scholar_search
 from search_api import search_openalex,  search_arxiv, search_crossref
 from dotenv import load_dotenv
-from utils import filter_duplicates, save_results_to_json, save_results_to_database,convert_latest_json_to_gsheet,enrich_with_firecrawl, summarize_filtered_papers, filter_top_papers
+from utils import filter_duplicates, save_results_to_json, save_results_to_database,convert_latest_json_to_gsheet,enrich_with_firecrawl, summarize_filtered_papers, filter_top_papers,convert_latest_json_to_gdoc
 import os
 
 
@@ -62,3 +62,4 @@ if saved_file:
     print(f"✅ Đã lưu kết quả enriched vào: {saved_file}")
 # 8. Lưu trên gg sheet
 convert_latest_json_to_gsheet()
+convert_latest_json_to_gdoc()

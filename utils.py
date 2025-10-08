@@ -28,11 +28,13 @@ RESULTS_DIR = "results"
 DATABASE_DIR = "database"
 DATABASE_FILE = "papers_db.json"
 SPREADSHEET_ID = "1snMFj6e4X3YUK_48xXJlb8VhLwcS4vSxb69LgoBcDO4"
+DOCUMENT_ID = "19S3OprOCXXxmo8FjkivBtz_t2t5isenYg-AVqqzA2-U"
 creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
 
 
 def get_creds():
-    scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+    scopes = ["https://www.googleapis.com/auth/spreadsheets",
+              "https://www.googleapis.com/auth/documents"]
 
     # Dành cho GitHub Actions
     creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
@@ -516,6 +518,131 @@ def convert_latest_json_to_gsheet():
     df = pd.DataFrame(data)
     append_json_to_gsheet(df, today_str)
     tidy_up_sheet_auto(SPREADSHEET_ID)
+ 
+    
+def append_json_to_gdoc(df, date_str):
+    """Thêm nội dung JSON vào Google Docs, định dạng văn bản."""
+    creds = get_creds()
+    service = build("docs", "v1", credentials=creds)
+    doc = service.documents().get(documentId=DOCUMENT_ID).execute()
+    doc_content = doc.get('body').get('content', [])
+
+    # --- Lấy chỉ số cuối tài liệu ---
+    end_index = doc_content[-1]['endIndex'] if doc_content else 1
+
+    # --- Kiểm tra xem ngày đã tồn tại chưa ---
+    day_header = f" Ngày {date_str}"
+    day_exists = any(
+        day_header in el.get('paragraph', {}).get('elements', [{}])[0].get('textRun', {}).get('content', '')
+        for el in doc_content
+    )
+
+    insert_requests = []
+    style_requests = []
+
+    # Nếu chưa có ngày -> thêm mới ở cuối
+    if not day_exists:
+        insert_requests.append({
+            "insertText": {
+                "location": {"index": end_index - 1},
+                "text": f"\n{day_header}\n\n"
+            }
+        })
+        # Sau khi thêm header, tăng end_index
+        end_index += len(day_header) + 3
+
+        style_requests.append({
+            "updateTextStyle": {
+                "range": {
+                    "startIndex": end_index - len(day_header) - 2,
+                    "endIndex": end_index - 2
+                },
+                "textStyle": {
+                    "bold": True,
+                    "foregroundColor": {"color": {"rgbColor": {"red": 1, "green": 0, "blue": 0}}}
+                },
+                "fields": "bold,foregroundColor"
+            }
+        })
+
+    # Ghi từng bài báo (ở cuối)
+    for i, row in df.iterrows():
+        title = row.get('title', 'Không có tiêu đề')
+        authors = row.get('authors', 'Không rõ tác giả')
+        pubdate = row.get('pub_date', 'Không rõ ngày')
+        #abstract = row.get('abstract', '').strip()
+        summary = row.get('summary', '').strip()
+
+        text_block = (
+            f"{i+1}. {title}\n"
+            f"Tác giả: {authors}\n"
+            f"Ngày xuất bản: {pubdate}\n\n"
+            #f"Abstract: {abstract}\n\n"
+            f"Summary Abstract: {summary}\n\n"
+        )
+
+        insert_requests.append({
+            "insertText": {
+                "location": {"index": end_index - 1},
+                "text": text_block
+            }
+        })
+
+        # Định dạng tiêu đề bài báo (in đậm, đen)
+        title_start = end_index - 1 + len(f"{i+1}. ")
+        title_end = title_start + len(title)
+        style_requests.append({
+            "updateTextStyle": {
+                "range": {
+                    "startIndex": title_start,
+                    "endIndex": title_end
+                },
+                "textStyle": {
+                    "bold": True,
+                    "foregroundColor": {"color": {"rgbColor": {"red": 0, "green": 0, "blue": 0}}}
+                },
+                "fields": "bold,foregroundColor"
+            }
+        })
+
+        end_index += len(text_block)
+
+    # --- Thực thi ---
+    # 1️⃣ Chèn text
+    service.documents().batchUpdate(
+        documentId=DOCUMENT_ID, body={"requests": insert_requests}
+    ).execute()
+
+    # 2️⃣ Định dạng
+    if style_requests:
+        service.documents().batchUpdate(
+            documentId=DOCUMENT_ID, body={"requests": style_requests}
+        ).execute()
+
+    print(f"✅ Đã thêm dữ liệu ngày {date_str} vào Google Docs (ở cuối tài liệu).")
+
+
+def convert_latest_json_to_gdoc():
+    """Đọc file JSON hôm nay và ghi vào Google Docs."""
+    latest_file = get_latest_json()  # hàm này bạn đã có sẵn
+    if not latest_file:
+        print("⚠️ Không tìm thấy file JSON.")
+        return
+
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    base = os.path.basename(latest_file)
+    file_date = base.split("_")[0]
+
+    if file_date != today_str:
+        print("ℹ️ File JSON mới nhất không phải của hôm nay.")
+        return
+
+    with open(latest_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    df = pd.DataFrame(data)
+    append_json_to_gdoc(df, today_str)
+    
     
 # ========================
 # Merge & Save to One File

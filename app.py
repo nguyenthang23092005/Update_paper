@@ -6,8 +6,7 @@ import json
 import os
 import glob
 from dotenv import load_dotenv
-from utils import filter_duplicates, save_results_to_json, save_results_to_database,get_latest_json,convert_latest_json_to_gsheet,enrich_with_firecrawl, summarize_filtered_papers, filter_top_papers
-
+from utils import filter_duplicates, save_results_to_json, save_results_to_database,get_latest_json,convert_latest_json_to_gsheet,enrich_with_firecrawl, summarize_filtered_papers, filter_top_papers,convert_latest_json_to_gdoc
 
 # ===================== PAGE CONFIG =====================
 st.set_page_config(page_title="Paper Search App", layout="wide")
@@ -85,7 +84,7 @@ with tab1:
                     save_results_to_database(saved_file)
                     st.success(f"✅ Đã lưu kết quả enriched vào: {saved_file}")
                 convert_latest_json_to_gsheet()
-
+                convert_latest_json_to_gdoc()
 
                 # 8. Hiển thị kết quả
                 latest_file = get_latest_json()
