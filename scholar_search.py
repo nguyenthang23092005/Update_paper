@@ -140,7 +140,7 @@ class ScholarFinder:
         time.sleep(3)
 
         # Nhập từ khóa
-        search_box = WebDriverWait(self.driver, 10).until(
+        search_box = WebDriverWait(self.driver, 30).until(
             EC.presence_of_element_located((By.NAME, "q"))
         )
         search_box.clear()
