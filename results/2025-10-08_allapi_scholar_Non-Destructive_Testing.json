@@ -1,0 +1,68 @@
+[
+  {
+    "source": "OpenAlex",
+    "title": "Highly Efficient Near‐Infrared Emission (IQE 85%/EQE 75%) From [(Mo<sub>6</sub>I<sub>8</sub>)I<sub>6</sub>]<sup>2−</sup> Cluster‐Doped (ETP)<sub>2</sub>SbCl<sub>5</sub> 0D Metal Halide Glass for Multifunctional Optoelectronic Applications",
+    "abstract": "Abstract Near‐infrared (NIR) light sources have found extensive applications in bioimaging of biological tissues, plant growth, disease diagnosis, and therapeutics. However, developing high‐performance near‐infrared emitting materials with broad spectral output remains challenging due to limitations in excitation compatibility, quantum efficiency, and material stability. In this study, [(Mo 6 I 8 )I 6 ] 2− (Mo 6 ) cluster‐doped (ETP) 2 SbCl 5 0D metal halide glass through a low‐temperature liquid quenching method is synthesized. X‐ray diffraction results indicate that Mo 6 cluster doping does not disrupt the amorphous structure of the glass. Optical properties show that broadband NIR emission is achieved under blue light excitation, with internal and external quantum efficiencies reaching 85% and 75%, respectively. Time‐resolved spectroscopy and temperature‐dependent photoluminescence analysis elucidate the energy transfer process and the mechanism of high internal quantum efficiency. The glass exhibits excellent resistance to singlet oxygen quenching in the solid state, and the Mo 6 ‐doped material also shows advantages in solution processing for optoelectronic device fabrication. Moreover, (ETP) 2 SbCl 5 :Mo 6 glass demonstrates good NIR emission performance under various excitation modes and in different states. When packaged into NIR phosphor‐converted light‐emitting diode (pc‐LED), it shows excellent spectral stability and outstanding practical application performance in bioimaging, night vision, non‐destructive testing, and plant growth.",
+    "authors": "Peiqing Cai, Xuhui Feng, Jing Wang, Shala Bi, Zhaoyang Chen, Xiang-Fu Wang, Zugang Liu",
+    "link": "https://doi.org/10.1002/lpor.202501665",
+    "citations": 0,
+    "status": "Not Available",
+    "pub_date": "2025-10-06",
+    "summary": "This study addresses the challenge of developing high-performance near-infrared (NIR) emitting materials by synthesizing a novel [(Mo 6 I 8 )I 6 ] 2− (Mo 6 ) cluster-doped (ETP) 2 SbCl 5 0D metal halide glass. This material exhibits broadband NIR emission under blue light excitation, achieving high internal and external quantum efficiencies of 85% and 75%, respectively. Further analysis reveals excellent resistance to singlet oxygen quenching and elucidates the energy transfer mechanism contributing to its high efficiency and versatility across different excitation modes. When integrated into phosphor-converted light-emitting diodes (pc-LEDs), this Mo 6 -doped glass demonstrates outstanding practical performance and spectral stability for applications such as bioimaging, night vision, and plant growth."
+  },
+  {
+    "source": "OpenAlex",
+    "title": "Evaluation of One-image 3D Reconstruction for Plant Model Generation",
+    "abstract": "<title>Abstract</title> Generating accurate and visually realistic 3D models of plants from single-view images is crucial yet remains challenging due to plants' intricate geometry and frequent occlusions. This capability matters because it supplements current plant datasets and enables non-destructive, high-throughput phenotyping for crop breeding and precision agriculture. More broadly, 3D reconstruction is particularly important because plant morphology is inherently three-dimensional, while 2D representations miss occluded leaves, branching geometry, and volumetric traits. However, plants present unique challenges compared to common rigid objects, and most current generative methods have not been systematically tested in this domain, leaving a gap in understanding their reliability for realistic plant reconstruction. This study systematically evaluates six advanced generative techniques—Hunyuan3D 2.0, Trellis (Structured 3D Latents), One2345++, InstantMesh, Direct3D and Unique3D—using the existing PlantDreamer dataset. Specifically, this research reconstructs mesh models from images of Bean plants and quantitatively assesses each method’s performance against ground-truth scans using Chamfer Distance, Normal Consistency, F-Score, PSNR, LPIPS, and CLIP Score. The paper also presents qualitative results of Kale and Mint plants. The results indicate that Hunyuan3D 2.0 achieves superior performance overall, suggesting its effectiveness in capturing complex plant structures. This work provides valuable insights into strengths and limitations of contemporary 3D generative approaches, guiding future improvements in realistic plant digitisation.",
+    "authors": "Zihe Gao, Zane K. J. Hartley, Andrew P. French",
+    "link": "https://doi.org/10.21203/rs.3.rs-7577309/v1",
+    "citations": 0,
+    "status": "Not Available",
+    "pub_date": "2025-10-06",
+    "summary": "Generating accurate and realistic 3D plant models from single-view images is crucial for crop breeding and precision agriculture, yet challenging due to complex plant geometry and occlusions. This study systematically evaluates six advanced generative techniques for 3D reconstruction using the PlantDreamer dataset, quantitatively assessing their performance against ground-truth scans of Bean plants with various metrics. The results indicate that Hunyuan3D 2.0 achieves superior overall performance in capturing complex plant structures. This work provides valuable insights into the strengths and limitations of contemporary 3D generative approaches, guiding future improvements in realistic plant digitization."
+  },
+  {
+    "source": "OpenAlex",
+    "title": "Rapid Post-Earthquake Estimation of Vibration Frequencies of Historical Masonry Structures Using Laser Doppler Vibrometry",
+    "abstract": "It is challenging to conduct operational modal analysis of structures using contact sensors (e.g. accelerometers) in post-earthquake reconnaissance studies due to safety concerns. This paper presents the use of Laser Doppler Vibrometry as a safe and practical non-contact alternative to detect vibration frequencies of historical masonry structures. A single point Laser Doppler Vibrometer (LDV) was used to collect ambient vibration data from historical masonry structures after the 2023 Kahramanmaras earthquakes. The velocity measurements for a single-span arch bridge and a historic church are analysed in the frequency domain to identify the vibration modes of the examined structures. The vibration frequencies are used to evaluate, and where necessary update, the 3D finite element models created from point cloud data and non-destructive material tests. The results highlight the potential of LDV to provide practically useful data for conducting forensic post-earthquake investigations.",
+    "authors": "Baran Bozyiğit, Sinan Acikgoz",
+    "link": "https://doi.org/10.18400/tjce.1677967",
+    "citations": 0,
+    "status": "Not Available",
+    "pub_date": "2025-10-06",
+    "summary": "This paper introduces Laser Doppler Vibrometry (LDV) as a safe, non-contact method for conducting post-earthquake operational modal analysis, addressing safety concerns associated with traditional contact sensors. Researchers utilized a single-point LDV to gather ambient vibration data from historical masonry structures, including an arch bridge and a church, after the 2023 Kahramanmaras earthquakes. The velocity measurements were analyzed in the frequency domain to identify structural vibration modes, which were then used to evaluate and update 3D finite element models. The findings highlight LDV's significant potential for providing valuable data in forensic post-earthquake investigations."
+  },
+  {
+    "source": "OpenAlex",
+    "title": "Determining the Properties of a Layered Composite Plate Made of Twill-Weave Glass Fibre Fabric Using Non-Destructive Testing Methods",
+    "abstract": "A non-destructive method for determining the properties of laminated composite materials made of twill-weave glass fibre fabric is considered. To determine the elastic characteristics of the composite monolayer, a combined numerical–experimental method is used. The method combines the results of experimental tests and numerical modelling methods using optimization techniques. Firstly, the method for determining the properties is tested in a virtual experiment to determine the influence of the elastic characteristics of the material that do not affect the frequency response. The adequacy of the approximation equations and the influence of elastic constants on frequency response are evaluated using Analysis of Variance (ANOVA). Using the results obtained, the properties of the elastic characteristics of layered composite plates made of twill-weave glass fibre fabric using vacuum infusion are determined. To compare the properties obtained from the dynamic calculation, a series of static measurements of tensile samples were carried out. The results showed that the elastic modulus from the static test and the flexural test do not coincide by 4% and 23%, respectively. The technique demonstrates high accuracy and applicability for the non-destructive determination of dynamic material properties in engineering practice.",
+    "authors": "Andrejs Kovaļovs, Vitalijs Kuzmickis, В. И. Кулаков",
+    "link": "https://doi.org/10.3390/jcs9100546",
+    "citations": 0,
+    "status": "Not Available",
+    "pub_date": "2025-10-05",
+    "summary": "This paper introduces a non-destructive, combined numerical-experimental method for determining the elastic characteristics of laminated composite materials made from twill-weave glass fibre fabric. The method integrates experimental tests with numerical modeling and optimization techniques. Its efficacy was validated through virtual experiments and ANOVA, and it was then applied to determine the properties of vacuum-infused composite plates. Although comparisons with static tensile and flexural tests showed some discrepancies, the technique demonstrated high accuracy and practical applicability for non-destructive determination of dynamic material properties in engineering."
+  },
+  {
+    "source": "Google Scholar",
+    "title": "Predicting wood properties using resistance drilling: the effect of needle diameter and battery",
+    "abstract": "KEYWORDS:\nResistance drillingneedle diameterbatterynon-destructive testing",
+    "authors": "V Gendvilas, DJ Lee, GM Downes… - … Material Science & …, 2025 - Taylor & Francis",
+    "link": "https://www.tandfonline.com/doi/full/10.1080/17480272.2025.2565371",
+    "citations": 0,
+    "status": "Open Access",
+    "pub_date": "2025",
+    "summary": "The abstract content was not provided in your request. Therefore, I cannot generate a summary.\n\nPlease provide the full abstract, and I will be happy to summarize it for you in 3-4 concise sentences using simple and clear academic English.\n\nBased on the keywords (Resistance drilling, needle diameter, battery, non-destructive testing), the abstract likely explores the use of resistance drilling, possibly with varying needle diameters, as a non-destructive method for testing or characterizing batteries."
+  },
+  {
+    "source": "Google Scholar",
+    "title": "Optical Fiber Device for Non-Destructive Detection of Water Concentration in Ethanol",
+    "abstract": "Highlights\n•\nOptical fiber device for non-destructive detection of water concentration in ethanol\n•\nThe low-cost device is made of an LED, a USB power meter, and a fiber reflection probe\n•\nWater in ethanol is monitored by the reflected light at 1300nm\n•\nContactless detection of water in ethanol in the range 0% to 100% (v/v) rapidly\n•\nThe device use is repeatable with a measurement accuracy of 1% (v/v)",
+    "authors": "P Pal, J Mathew, J Stephen - Results in Engineering, 2025 - Elsevier",
+    "link": "https://www.sciencedirect.com/science/article/pii/S259012302503628X",
+    "citations": 0,
+    "status": "Open Access",
+    "pub_date": "2025",
+    "summary": "An optical fiber device has been developed for the non-destructive and rapid detection of water concentration in ethanol. This low-cost system comprises an LED, a USB power meter, and a fiber reflection probe, monitoring water content by measuring reflected light at 1300nm. It enables contactless detection across the full range of 0% to 100% (v/v) water in ethanol. The device demonstrates high repeatability and a measurement accuracy of 1% (v/v)."
+  }
+]
