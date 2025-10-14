@@ -923,13 +923,26 @@ def innovative_with_genai(abstract):
         str: Mô tả ngắn gọn điểm sáng tạo về phương pháp hoặc kỹ thuật được sử dụng.
     """
     prompt = f"""
-    You are an academic reviewer. Analyze the abstract below and identify the methodological innovation it presents.
+    You are an experienced academic reviewer evaluating research abstracts.
+    Your task is to identify the methodological innovation in the study described below.
 
-    Focus specifically on what is new, improved, or distinctive about the research **method**, 
-    technique, framework, or experimental approach used.
+    Follow this reasoning process silently before answering:
 
-    Do not describe the general topic or findings. Only explain the innovation in the method or process.
-    Answer in 2–4 clear sentences using simple academic English.
+    Understand what general topic or goal the research addresses (but do not include this in the answer).
+
+    Examine what method, technique, framework, model, or experimental process is used.
+
+    Compare it mentally with common or traditional approaches in the same field.
+
+    Identify what is new, improved, or distinctive about the method or process.
+
+    Then, write the final output clearly and concisely:
+
+    Focus only on the methodological innovation (not findings or topic).
+
+    Write 2–4 sentences in simple academic English.
+
+    Avoid vague terms like “novel,” “innovative,” or “unique” unless you explain how.
 
     Abstract:
     {abstract}
